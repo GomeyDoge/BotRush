@@ -2,7 +2,7 @@ GM.Name = "BotRush"
 GM.Author = "@realdotty"
 
 BotRush = {
-	_VERSION = "1.0.0-alpha",
+	_VERSION = "1.0.0-alpha", -- semver
 
 	_CREDITS = {
 		{
@@ -11,8 +11,15 @@ BotRush = {
 			["id64"] = "76561198362949858",
 			["title"] = "Project Manager"
 		}
-	}
+	},
+
+	Events = {},
+	Minigames = {}
 }
+
+function printf(...)
+	print( string.format(...) )
+end
 
 local function LoadModules()
 	local path = GAMEMODE.FolderName .. "/gamemode/modules/"
@@ -74,6 +81,55 @@ end
 
 if CLIENT then concommand.Add( "remount_all_gamemode_lua_client", function() LoadModules() end ) end
 
-function GM:Initialize()
-	-- Do stuff
+function BotRush:GetRandomBot()
+	local bots = player.GetBots()
+	if #bots == 0 then return end -- No bots
+	return bots[math.random(#bots)]
+end
+
+function BotRush:GetRandomHuman()
+	local humans = player.GetHumans()
+	if #humans == 0 then return end -- No humans
+	return humans[math.random(#humans)]
+end
+
+function BotRush:GetRandom() -- Bots and players
+	local players = player.GetAll()
+	if #players == 0 then return end
+	return players[#players]
+end
+
+local Event = {}
+Event.__index = Event
+
+function Event:GetName()
+	return self.name
+end
+
+function Event:GetDescription()
+	return self.description
+end
+
+function Event:Start()
+	if self.startFunc then self.startFunc() end
+
+	if self.duration and self.duration > 0 then
+		timer.Simple( self.duration, function()
+			if self.endFunc then self.endFunc() end
+		end )
+	end
+end
+
+function Event:Stop()
+	if self.endFunc then self.endFunc() end
+end
+
+function BotRush:CreateEvent(name, description, startFunc, endFunc, duration)
+	return setmetatable( {
+		name = name,
+		description = description,
+		startFunc = startFunc,
+		endFunc = endFunc,
+		duration = duration or 0 -- 0 means no auto-end
+	}, Event )
 end
