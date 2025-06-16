@@ -1,0 +1,8 @@
+"botrush"
+{
+	"base"		    "base"
+	"title"		    "Bot Rush"
+	"maps"		    "^gm_"
+	"category"	    "pvp"
+	"menusystem"	"1"
+}
